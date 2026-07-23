@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { buildApiUrl, normalizeRecords } from '../utils/api.js';
 
 function Teams() {
   const [teams, setTeams] = useState([]);
@@ -12,15 +11,27 @@ function Teams() {
     async function loadTeams() {
       try {
         setLoading(true);
-        const response = await fetch(buildApiUrl('teams'));
+        const codespaceName = import.meta.env.VITE_CODESPACE_NAME;
+        const apiUrl = codespaceName
+          ? `https://${codespaceName}-8000.app.github.dev/api/teams/`
+          : 'http://localhost:8000/api/teams/';
+        const response = await fetch(apiUrl);
         const payload = await response.json();
 
         if (!response.ok) {
           throw new Error(payload?.message || 'Unable to load teams');
         }
 
+        const records = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.results)
+            ? payload.results
+            : Array.isArray(payload?.data)
+              ? payload.data
+              : [];
+
         if (isMounted) {
-          setTeams(normalizeRecords(payload));
+          setTeams(records);
         }
       } catch (caughtError) {
         if (isMounted) {

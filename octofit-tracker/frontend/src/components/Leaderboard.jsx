@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { buildApiUrl, normalizeRecords } from '../utils/api.js';
 
 function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState([]);
@@ -12,15 +11,27 @@ function Leaderboard() {
     async function loadLeaderboard() {
       try {
         setLoading(true);
-        const response = await fetch(buildApiUrl('leaderboard'));
+        const codespaceName = import.meta.env.VITE_CODESPACE_NAME;
+        const apiUrl = codespaceName
+          ? `https://${codespaceName}-8000.app.github.dev/api/leaderboard/`
+          : 'http://localhost:8000/api/leaderboard/';
+        const response = await fetch(apiUrl);
         const payload = await response.json();
 
         if (!response.ok) {
           throw new Error(payload?.message || 'Unable to load leaderboard');
         }
 
+        const records = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.results)
+            ? payload.results
+            : Array.isArray(payload?.data)
+              ? payload.data
+              : [];
+
         if (isMounted) {
-          setLeaderboard(normalizeRecords(payload));
+          setLeaderboard(records);
         }
       } catch (caughtError) {
         if (isMounted) {
