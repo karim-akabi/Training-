@@ -10,11 +10,13 @@
     "seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
+    "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^4.22.2",
     "mongoose": "^8.24.1"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^4.17.25",
     "@types/node": "^22.20.1",
     "tsx": "^4.23.1",
